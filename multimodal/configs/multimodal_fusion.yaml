@@ -1,0 +1,49 @@
+# Multimodal fusion — XGBoost with the CT score as an offset
+# Compares the CT model alone, the tabular features alone, and their fusion.
+# Run get_ct_score.py first to produce the CT score column, and
+# feature_selection.py to produce the feature list below.
+#
+# Paths are relative to the repository root. Point them at your local data;
+# patient data is not distributed with this repository.
+
+# --- data ---
+data_file: data/multimodal_features.xlsx
+sheet_name: NAIC
+output_dir: outputs/multimodal_fusion
+
+id_col: ID
+label_col: true_label
+ct_score_col: CT_score
+
+# Must match the column headers of the data file exactly.
+feature_cols:
+  - CA199
+  - CEA
+  - tumor_necros_density
+  - tumor_inflam_density
+  - RBC
+
+categorical_cols: []
+
+variants: [ct_only, clinical_only, multimodal]
+
+# --- model ---
+xgb_params:
+  max_depth: 2
+  learning_rate: 0.05
+  min_child_weight: 5
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_lambda: 20
+  reg_alpha: 2.0
+
+# --- boosting rounds ---
+n_rounds_max: 2000
+early_stopping_rounds: 100
+n_inner_folds: 5
+
+# --- run ---
+n_folds: 5
+cv_seed: 2
+refit_seed: 5
+inner_cv_seed_offset: 1000

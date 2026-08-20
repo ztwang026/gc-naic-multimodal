@@ -1,0 +1,100 @@
+# SHAP-based feature selection for the multimodal model
+# Fits the full-feature model over repeated cross-validation, ranks the features
+# by mean absolute SHAP value on the held-out folds, and re-evaluates the top-K
+# subsets. The chosen subset is then written into configs/multimodal_fusion.yaml.
+#
+# Paths are relative to the repository root. Point them at your local data;
+# patient data is not distributed with this repository.
+
+# --- data ---
+data_file: data/multimodal_features.xlsx
+sheet_name: NAIC
+output_dir: outputs/feature_selection
+
+id_col: ID
+label_col: true_label
+ct_score_col: CT_score   # entered as an offset, never as a feature
+
+# Must match the column headers of the data file exactly.
+feature_cols:
+  # clinical
+  - Age
+  - Sex
+  - cT
+  - cN
+  # tumour markers
+  - CEA
+  - CA199
+  # blood counts
+  - RBC
+  - Hb
+  - WBC
+  - GRN
+  - LYM
+  - PLT
+  # cell densities, ROI region
+  - ROI_no-neo_density
+  - ROI_neopla_density
+  - ROI_connec_density
+  - ROI_inflam_density
+  - ROI_necros_density
+  # cell densities, stroma region
+  - stroma_no-neo_density
+  - stroma_neopla_density
+  - stroma_connec_density
+  - stroma_inflam_density
+  - stroma_necros_density
+  # cell densities, tumour region
+  - tumor_no-neo_density
+  - tumor_neopla_density
+  - tumor_connec_density
+  - tumor_inflam_density
+  - tumor_necros_density
+
+categorical_cols: [sex]
+
+# Binary columns added to the feature set, set to 1 when any listed column is
+# observed for that patient.
+missing_indicators:
+  has_pathology_data:
+    - ROI_no-neo_density
+    - ROI_neopla_density
+    - ROI_connec_density
+    - ROI_inflam_density
+    - ROI_necros_density
+    - stroma_no-neo_density
+    - stroma_neopla_density
+    - stroma_connec_density
+    - stroma_inflam_density
+    - stroma_necros_density
+    - tumor_no-neo_density
+    - tumor_neopla_density
+    - tumor_connec_density
+    - tumor_inflam_density
+    - tumor_necros_density
+
+# --- selection ---
+top_k: [5, 8, 12]
+force_include: []   # features kept regardless of their SHAP rank
+
+# --- model ---
+xgb_params:
+  max_depth: 3
+  learning_rate: 0.05
+  min_child_weight: 10
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_lambda: 5.0
+  reg_alpha: 2.0
+
+# --- boosting rounds ---
+n_rounds_max: 2000
+early_stopping_rounds: 100
+n_inner_folds: 3
+
+# --- run ---
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds_selection: 10    # folds for the full-feature stage that produces SHAP
+n_folds_subset: 5        # folds for re-evaluating each top-K subset
+inner_cv_seed_offset: 1000
+save_fold_outputs: false # writes one pipeline and prediction file per fold

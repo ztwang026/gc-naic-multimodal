@@ -1,0 +1,31 @@
+# NAC pretraining — dual-branch resnet model
+# Pretrains on the large NAC cohort to learn general treatment-response CT
+# features. The resulting weights are later fine-tuned on the NAIC cohort
+# (see finetune_naic.py).
+#
+# Paths are relative to the repository root. Point them at your local data;
+# patient CT data is not distributed with this repository.
+
+
+# --- model ---
+backbone: resnet50
+# --- data ---
+data_file: data/ct_labels.xlsx      # columns: CT_id, Label
+sheet_name: NAC
+dataset_root: data/nac_preprocessed_ct
+output_dir: outputs/nac_resnet50_pretrain
+
+# --- optimization ---
+batch_size: 64
+lr: 0.001
+weight_decay: 0.0001
+step_size: 5
+gamma: 0.7
+dropout_rate: 0.7
+
+# --- run ---
+num_workers: 0
+epochs: 50               # epochs per cross-validation fold
+full_dataset_epochs: 50  # epochs for the final full-dataset model
+n_folds: 5
+seed: 2

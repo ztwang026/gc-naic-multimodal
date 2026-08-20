@@ -1,0 +1,32 @@
+# NAIC de-novo baseline — dual-branch ResNet
+# Trains from ImageNet weights directly on the NAIC cohort, without NAC
+# pretraining. Serves as the baseline against which the transfer-learning
+# model (finetune_naic.py) is compared.
+#
+# Paths are relative to the repository root. Point them at your local data;
+# patient CT data is not distributed with this repository.
+
+
+
+# --- model ---
+backbone: resnet18
+# --- data ---
+data_file: data/ct_labels.xlsx      # columns: CT_id, Label
+sheet_name: NAIC
+dataset_root: data/naic_preprocessed_ct
+output_dir: outputs/naic_resnet50_baseline
+
+# --- optimization ---
+batch_size: 16
+lr: 0.00005
+weight_decay: 0.001
+step_size: 5
+gamma: 0.7
+dropout_rate: 0.7
+
+# --- run ---
+num_workers: 0
+epochs: 50               # epochs per cross-validation fold
+full_dataset_epochs: 50  # epochs for the final full-dataset model
+n_folds: 5
+seed: 2

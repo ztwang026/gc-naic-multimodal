@@ -1,0 +1,17 @@
+# NAIC inference — dual-branch ResNet-50
+# Runs the fine-tuned model (produced by configs/finetune_naic.yaml) over a
+# cohort and writes predictions to output_dir.
+
+
+# --- data ---
+data_file: data/ct_labels.xlsx        # columns: CT_id, Label
+sheet_name: NAIC-test
+dataset_root: data/naic_test_preprocessed_ct
+output_dir: outputs/naic_inference
+
+# --- model ---
+model_path: outputs/naic_finetune/full_dataset/epoch50.pth
+
+# --- run ---
+batch_size: 64
+num_workers: 0

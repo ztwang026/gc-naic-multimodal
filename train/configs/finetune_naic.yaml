@@ -1,0 +1,35 @@
+# NAIC fine-tuning — dual-branch ResNet-50
+# Fine-tunes the NAC-pretrained weights on the NAIC cohort with layer-wise
+# learning rates. Run configs/pretrain_nac.yaml first to produce the checkpoint
+# referenced by `pretrained_weights`.
+#
+# Paths are relative to the repository root. Point them at your local data;
+# patient CT data is not distributed with this repository.
+
+# --- data ---
+data_file: data/ct_labels.xlsx      # columns: CT_id, Label
+sheet_name: NAIC
+dataset_root: data/naic_preprocessed_ct
+output_dir: outputs/naic_finetune
+
+# --- pretrained weights ---
+pretrained_weights: outputs/nac_resnet50_pretrain/full_dataset/epoch50.pth
+
+# --- optimization ---
+batch_size: 16
+lr: 5.0e-5
+weight_decay: 0.01
+step_size: 5
+gamma: 0.5
+dropout_rate: 0.7
+lr_multipliers:
+  early: 0.01
+  late: 0.5
+  head: 1.0
+
+# --- run ---
+num_workers: 0
+epochs: 50
+full_dataset_epochs: 50
+n_folds: 5
+seed: 2
