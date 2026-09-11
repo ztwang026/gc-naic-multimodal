@@ -9,7 +9,7 @@
 
 
 # --- model ---
-backbone: resnet18
+backbone: resnet50
 # --- data ---
 data_file: data/ct_labels.xlsx      # columns: CT_id, Label
 sheet_name: NAIC
